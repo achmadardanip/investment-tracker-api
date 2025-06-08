@@ -1,0 +1,66 @@
+[
+    {
+        "model": "auth.user",
+        "pk": 1,
+        "fields": {
+            "password": "pbkdf2_sha256$720000$PsgqmsBweGq4qYIs3iKBYs$o/fCTsLId3YArJp2E0i51dap4mchOq5gUmd4VTMKjHk=",
+            "last_login": "2025-06-08T01:55:00Z",
+            "is_superuser": true,
+            "username": "admin",
+            "first_name": "",
+            "last_name": "",
+            "email": "admin@example.com",
+            "is_staff": true,
+            "is_active": true,
+            "date_joined": "2025-06-08T01:55:00Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "investments.userinvestment",
+        "pk": 1,
+        "fields": {
+            "user": 1,
+            "asset_name": "Tesla Stocks",
+            "amount_invested": "10000.00",
+            "purchase_date": "2025-06-01T12:00:00Z",
+            "current_value": "12000.00",
+            "is_active": true
+        }
+    },
+    {
+        "model": "investments.userinvestment",
+        "pk": 2,
+        "fields": {
+            "user": 1,
+            "asset_name": "Real Estate Fund",
+            "amount_invested": "25000.00",
+            "purchase_date": "2024-01-10T12:00:00Z",
+            "current_value": "24000.00",
+            "is_active": true
+        }
+    },
+    {
+        "model": "investments.transactionlog",
+        "pk": 1,
+        "fields": {
+            "user": 1,
+            "transaction_type": "PURCHASE",
+            "amount": "10000.00",
+            "timestamp": "2025-06-01T12:00:00Z",
+            "reference_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+        }
+    },
+    {
+        "model": "investments.transactionlog",
+        "pk": 2,
+        "fields": {
+            "user": 1,
+            "transaction_type": "PURCHASE",
+            "amount": "25000.00",
+            "timestamp": "2024-01-10T12:00:00Z",
+            "reference_id": "a1b2c3d4-e5f6-7890-1234-567890abcdea"
+        }
+    }
+]
