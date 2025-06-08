@@ -1,10 +1,10 @@
-# **API Pelacak Investasi**
+# **Investment Tracker API**
 
-Proyek ini adalah REST API sederhana yang dibangun dengan Django dan Django REST Framework untuk melacak investasi pengguna. Ini berfungsi sebagai tes penyaringan awal untuk menilai keterampilan dasar pengembangan backend. API ini memungkinkan pengguna yang terautentikasi untuk mengelola investasi mereka, melihat kinerja portofolio, dan mendapatkan wawasan tentang kebiasaan investasi mereka.
+This project is a simple REST API built with Django and Django REST Framework to track user investments. The API allows authenticated users to manage their investments, view their portfolio's performance, and gain insights into their investment habits.
 
-## **Struktur Proyek**
+## **Project Structure**
 
-investment-tracker/  
+investment-tracker-api/  
 ├── manage.py  
 ├── requirements.txt  
 ├── README.md  
@@ -29,141 +29,202 @@ investment-tracker/
 └── fixtures/  
     └── sample\_data.json
 
-## **Instruksi Pengaturan**
+## **Setup Instructions**
 
-1. **Clone repositori ini:**  
-   git clone \<url-repo-anda\>  
-   cd investment-tracker
+1. **Clone this repository:**
+```
+git clone https://github.com/achmadardanip/investment-tracker-api.git  
+cd investment-tracker-api
+```
 
-2. **Buat lingkungan virtual dan aktifkan:**  
-   python \-m venv venv  
-   source venv/bin/activate  \# Di Windows, gunakan \`venv\\Scripts\\activate\`
+2. **Create a virtual environment and activate it:**  
+```
+python -m venv venv  
+source venv/bin/activate  # On Windows, use venv\Scripts\activate
+```
 
-3. **Instal dependensi yang dibutuhkan:**  
-   pip install \-r requirements.txt
+3. **Install the required dependencies:**  
+```
+pip install -r requirements.txt
+```
 
-4. **Buat migrasi database untuk aplikasi** investments**:**  
-   python manage.py makemigrations investments
+4. **Create database migrations for the investments app:**  
+```
+python manage.py makemigrations investments
+```
 
-5. **Terapkan migrasi database untuk membuat tabel:**  
-   python manage.py migrate
+5. **Apply database migrations to create the tables:**  
+```
+python manage.py migrate
+```
 
-6. **Muat data sampel (Opsional):**  
-   python manage.py loaddata fixtures/sample\_data.json
+6. **Load sample data (Optional):**  
+```
+python manage.py loaddata fixtures/sample_data.json
+```
 
-   Perintah ini akan membuat superuser (admin) dengan kata sandi adminpassword serta beberapa data investasi dan transaksi sampel.  
-7. **Jalankan server pengembangan:**  
-   python manage.py runserver
+This command will create a superuser (admin) with the password adminpassword and some sample investment and transaction data.  
 
-   API akan tersedia di http://127.0.0.1:8000/.
+7. **Run the development server:**  
+```
+python manage.py runserver
+```
 
-## **Endpoint API**
+The API will be available at http://127.0.0.1:8000/.
 
-URL dasar untuk API adalah /api/v1/.
 
-### **Autentikasi**
 
-API ini menggunakan JWT untuk autentikasi. Untuk mengakses endpoint yang dilindungi, Anda perlu mendapatkan token dan menyertakannya dalam header Authorization sebagai Bearer token.
+## **API Endpoints**
+
+The base URL for the API is /api/v1/.
+
+### **Authentication**
+
+This API uses JWT for authentication. To access protected endpoints, you need to obtain a token and include it in the Authorization header as a Bearer token.
 
 * **POST** /api/token/  
-  * Dapatkan token JWT dengan memberikan username dan password.  
+  * Get a JWT token by providing a username and password.  
 * **POST** /api/token/refresh/  
-  * Perbarui token JWT yang sudah kedaluwarsa menggunakan refresh token.
+  * Refresh an expired JWT token using a refresh token.
 
-### **Investasi**
+### **Investments**
 
 * **GET** /api/v1/investments/  
-  * **Deskripsi:** Mengambil daftar investasi (dengan paginasi) untuk pengguna yang terautentikasi, diurutkan berdasarkan tanggal pembelian (terbaru dulu).  
-  * **Header:** Authorization: Bearer \<token\_akses\_anda\>  
-  * **Respons:**  
+  * **Description:** Retrieves a paginated list of all investments for the authenticated user, ordered by purchase date (newest first).  
+  * **Header:** Authorization: Bearer \<your\_access\_token\>  
+  * **Response:**  
+    ```
     {  
         "count": 2,  
         "next": null,  
         "previous": null,  
-        "results": \[  
+        "results": [  
             {  
                 "id": 1,  
-                "asset\_name": "Saham Tesla",  
-                "amount\_invested": "10000.00",  
-                "purchase\_date": "2025-06-01T12:00:00Z",  
-                "current\_value": "12000.00",  
-                "is\_active": true,  
-                "profit\_loss": "2000.00",  
-                "profit\_loss\_percentage": "20.00"  
+                "asset_name": "Tesla Stocks",  
+                "amount_invested": "10000.00",  
+                "purchase_date": "2025-06-01T12:00:00Z",  
+                "current_value": "12000.00",  
+                "is_active": true,  
+                "profit_loss": "2000.00",  
+                "profit_loss_percentage": "20.00"  
             }  
-        \]  
+        ]  
     }
+    ```
 
 * **POST** /api/v1/investments/  
-  * **Deskripsi:** Membuat investasi baru untuk pengguna yang terautentikasi. Log transaksi 'PURCHASE' yang sesuai akan dibuat secara otomatis.  
-  * **Header:** Authorization: Bearer \<token\_akses\_anda\>  
+  * **Description:** Creates a new investment for the authenticated user. A corresponding 'PURCHASE' transaction log is created automatically.  
+  * **Header:** Authorization: Bearer \<your\_access\_token\>  
   * **Body:**  
+    ```
     {  
-        "asset\_name": "Saham Apple",  
-        "amount\_invested": "5000.00",  
-        "current\_value": "5100.00",  
-        "purchase\_date": "2025-06-08T10:00:00Z"  
+        "asset_name": "Apple Stocks",  
+        "amount_invested": "5000.00",  
+        "current_value": "5100.00",  
+        "purchase_date": "2025-06-08T10:00:00Z"  
     }
+    ```
 
-  * **Validasi:** amount\_invested harus minimal $1000.  
-  * **Respons (201 Created):** Objek investasi yang baru dibuat.  
+  * **Validation:** amount_invested must be at least $1000.  
+  * **Response (201 Created):** The newly created investment object.  
 * **GET** /api/v1/investments/summary/  
-  * **Deskripsi:** Memberikan ringkasan data agregat dari portofolio investasi pengguna.  
-  * **Header:** Authorization: Bearer \<token\_akses\_anda\>  
-  * **Respons:**  
+  * **Description:** Provides an aggregated summary of the user's investment portfolio.  
+  * **Header:** Authorization: Bearer \<your\_access\_token\>  
+  * **Response:**
+  ```
     {  
-        "total\_invested": "35000.00",  
-        "current\_portfolio\_value": "36000.00",  
-        "total\_profit\_loss": "1000.00",  
-        "overall\_roi\_percentage": "2.86",  
-        "active\_investments\_count": 2,  
-        "best\_performing\_investment": { "...data investasi terbaik..." },  
-        "worst\_performing\_investment": { "...data investasi terburuk..." },  
+        "total_invested": "35000.00",  
+        "current_portfolio_value": "36000.00",  
+        "total_profit_loss": "1000.00",  
+        "overall_roi_percentage": "2.86",  
+        "active_investments_count": 2,  
+        "best_performing_investment": { "...best investment data..." },  
+        "worst_performing_investment": { "...worst investment data..." },  
         "insights": {  
-            "average\_holding\_period\_days": 270.5,  
-            "preferred\_investment\_size": 17500.00  
+            "average_holding_period_days": 270.5,  
+            "preferred_investment_size": 17500.00  
         }  
     }
+  ```
 
 ## **Database**
 
-Proyek ini menggunakan **SQLite** untuk kemudahan pengaturan, sesuai dengan persyaratan tugas. Tidak diperlukan server database eksternal.
+This project uses **SQLite** for simplicity and ease of setup, as specified in the assignment requirements. No external database server is needed.
 
-## **Contoh Perintah** curl
+## **Sample curl Commands**
 
-1. Dapatkan Token:  
-   Windows (Command Prompt / PowerShell):  
-   curl \-X POST http://127.0.0.1:8000/api/token/ \-H "Content-Type: application/json" \-d "{\\"username\\": \\"admin\\", \\"password\\": \\"katasandibaruanda\\"}"
+1. **Get Token:**  
+   **Windows (Command Prompt / PowerShell):**
+   ``` 
+   curl -X POST http://127.0.0.1:8000/api/token/ -H "Content-Type: application/json" -d "{\"username\": \"admin\", \"password\": \"youradminpassword\"}"
+   ```
+   Example:
+   
+   ![WhatsApp Image 2025-06-08 at 09 26 06_ecd3ec15](https://github.com/user-attachments/assets/35f94c39-23a8-47bc-a703-1651076c3349)
 
-   **macOS / Linux (Bash / Zsh):**  
-   curl \-X POST http://127.0.0.1:8000/api/token/ \-H "Content-Type: application/json" \-d '{"username": "admin", "password": "katasandibaruanda"}'
 
-2. **Lihat Daftar Investasi:**  
-   curl \-X GET http://127.0.0.1:8000/api/v1/investments/ \-H "Authorization: Bearer \<token\_akses\_anda\>"
+   **macOS / Linux (Bash / Zsh):**
+   ```  
+   curl \-X POST http://127.0.0.1:8000/api/token/ \-H "Content-Type: application/json" \-d '{"username": "admin", "password": "yournewpassword"}'
+   ```
 
-3. Buat Investasi:  
-   Windows (Command Prompt / PowerShell):  
-   curl \-X POST http://127.0.0.1:8000/api/v1/investments/ \-H "Content-Type: application/json" \-H "Authorization: Bearer \<token\_akses\_anda\>" \-d "{\\"asset\_name\\": \\"Dana Teknologi Baru\\", \\"amount\_invested\\": \\"2500\\", \\"current\_value\\": \\"2500\\", \\"purchase\_date\\": \\"2025-06-08T10:00:00Z\\"}"
+2. **List Investments:**
+   ```  
+   curl -X GET http://127.0.0.1:8000/api/v1/investments/ -H "Authorization: Bearer <yourtoken>"
+   ```
+   Example:
+   
+   ![WhatsApp Image 2025-06-08 at 09 27 59_804f078d](https://github.com/user-attachments/assets/c6af7346-9a0d-4c43-8e7d-37d8adfdfc37)
 
-   **macOS / Linux (Bash / Zsh):**  
-   curl \-X POST http://127.0.0.1:8000/api/v1/investments/ \-H "Content-Type: application/json" \-H "Authorization: Bearer \<token\_akses\_anda\>" \-d '{"asset\_name": "Dana Teknologi Baru", "amount\_invested": "2500", "current\_value": "2500", "purchase\_date": "2025-06-08T10:00:00Z"}'
 
-4. **Dapatkan Ringkasan:**  
-   curl \-X GET http://127.0.0.1:8000/api/v1/investments/summary/ \-H "Authorization: Bearer \<token\_akses\_anda\>"
+3. **Create Investment:**  
+   **Windows (Command Prompt / PowerShell):**
+   ```  
+   curl -X POST http://127.0.0.1:8000/api/v1/investments/ -H "Content-Type: application/json" -H "Authorization: yourtoken" -d "{\"asset_name\": \"yourassetname\", \"amount_invested\": \"youramountinvested\", \"current_value\": \"yourcurrentvalue\", \"purchase_date\": \"yourpurchasedate\"}"
+   ```
+   Example:
+   
+   Validation Failed:
+   
+   ![WhatsApp Image 2025-06-08 at 09 27 25_3ba23d15](https://github.com/user-attachments/assets/0417a7c9-0bf5-4529-ac6d-24494f978098)
 
-## **Asumsi yang Dibuat**
+   Validation Success:
 
-* current\_value dari sebuah investasi disediakan oleh pengguna saat pembuatan dan dapat diperbarui melalui admin Django atau endpoint PATCH di masa depan (tidak termasuk dalam tes ini).  
-* Flag is\_active secara default adalah True untuk investasi baru.  
-* Perhitungan laba/rugi didasarkan pada rumus sederhana: current\_value \- amount\_invested.  
-* reference\_id untuk transaksi adalah UUID unik yang dibuat secara otomatis saat pembuatan.
+   ![WhatsApp Image 2025-06-08 at 09 28 41_76945239](https://github.com/user-attachments/assets/78086c54-e180-4afb-bd09-2a7ea47b3687)
 
-## **Penyelesaian Masalah (Troubleshooting)**
+   
 
-### **Galat "No active account found with the given credentials"**
+   
 
-Jika Anda mendapatkan galat ini saat mencoba mendapatkan token, ini berarti kata sandi yang Anda berikan tidak cocok dengan yang ada di database. Anda dapat mengatur ulang kata sandi untuk pengguna admin dengan menjalankan perintah berikut dan mengikuti petunjuknya:
+   **macOS / Linux (Bash / Zsh):**
+   ```  
+   curl \-X POST http://127.0.0.1:8000/api/v1/investments/ \-H "Content-Type: application/json" \-H "Authorization: Bearer \<your\_access\_token\>" \-d '{"asset\_name": "New Tech Fund", "amount\_invested": "2500", "current\_value": "2500", "purchase\_date": "2025-06-08T10:00:00Z"}'
+   ```
 
+4. **Get Summary:**
+   ```  
+   curl -X GET http://127.0.0.1:8000/api/v1/investments/ -H "Authorization: Bearer yourtoken"
+   ```
+   Example:
+
+   ![image](https://github.com/user-attachments/assets/098cc30a-e0b8-455c-9ec0-e158ed65c6a5)
+
+
+## **Assumptions Made**
+
+* The current_value of an investment is provided by the user upon creation and can be updated via the Django admin or a future PATCH endpoint (not included in this test).  
+* The is_active flag is True by default for new investments.  
+* Profit/loss calculations are based on the simple formula: current_value - amount_invested.  
+* The reference_id for transactions is a unique UUID generated automatically upon creation.
+
+## **Troubleshooting**
+
+### **Error: "No active account found with the given credentials"**
+
+If you get this error when trying to obtain a token, it means the password you provided does not match the one in the database. You can reset the password for the admin user by running the following command and following the prompts:
+```
 python manage.py changepassword admin
+```
 
-Setelah Anda mengatur kata sandi baru, gunakan kata sandi tersebut dalam perintah curl untuk mendapatkan token.
+After you set the new password, use it in the curl command to get the token.
