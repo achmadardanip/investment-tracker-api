@@ -1,6 +1,7 @@
 # **Investment Tracker API**
 
-This project is a simple REST API built with Django and Django REST Framework to track user investments. The API allows authenticated users to manage their investments, view their portfolio's performance, and gain insights into their investment habits.
+This project started as a simple REST API. Version 2 introduces multi-currency investments, real-time WebSocket updates, background task processing with Celery and a GraphQL API layer.
+Version 3 adds experimental features such as on-chain settlements, machine learning based fraud detection, transaction reconciliation, a P2P matching engine and delegated yield strategies.
 
 ## **Project Structure**
 
@@ -77,6 +78,10 @@ The API will be available at http://127.0.0.1:8000/.
 ## **API Endpoints**
 
 The base URL for the API is /api/v1/.
+
+### GraphQL
+
+An experimental GraphQL endpoint is available at `/graphql/`.
 
 ### **Authentication**
 
