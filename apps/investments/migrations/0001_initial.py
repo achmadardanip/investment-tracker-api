@@ -16,7 +16,28 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='UserInvestment',
+            name='Currency',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('code', models.CharField(max_length=10)),
+                ('network', models.CharField(max_length=20)),
+                ('contract_address', models.CharField(max_length=255)),
+                ('decimal_places', models.IntegerField()),
+            ],
+        ),
+        migrations.CreateModel(
+            name='UserWallet',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('address', models.CharField(max_length=255, unique=True)),
+                ('balance', models.DecimalField(decimal_places=8, default=0, max_digits=20)),
+                ('locked_balance', models.DecimalField(decimal_places=8, default=0, max_digits=20)),
+                ('currency', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='investments.currency')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Investment',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('asset_name', models.CharField(max_length=255)),
@@ -24,8 +45,13 @@ class Migration(migrations.Migration):
                 ('purchase_date', models.DateTimeField()),
                 ('current_value', models.DecimalField(decimal_places=2, max_digits=12)),
                 ('is_active', models.BooleanField(default=True)),
+                ('yield_rate', models.DecimalField(decimal_places=2, default=0, max_digits=5)),
+                ('last_yield_payment', models.DateTimeField(blank=True, null=True)),
+                ('auto_compound', models.BooleanField(default=False)),
+                ('currency', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='investments.currency')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='investments', to=settings.AUTH_USER_MODEL)),
             ],
+            options={'db_table': 'investments_userinvestment'},
         ),
         migrations.CreateModel(
             name='TransactionLog',
@@ -36,6 +62,70 @@ class Migration(migrations.Migration):
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
                 ('reference_id', models.CharField(default=uuid.uuid4, max_length=255, unique=True)),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='transactions', to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='YieldPayment',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('amount', models.DecimalField(decimal_places=8, max_digits=20)),
+                ('payment_date', models.DateTimeField()),
+                ('transaction_hash', models.CharField(max_length=255, null=True)),
+                ('status', models.CharField(choices=[('pending', 'pending'), ('processing', 'processing'), ('completed', 'completed'), ('failed', 'failed')], max_length=20)),
+                ('currency', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='investments.currency')),
+                ('investment', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='investments.investment')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='AuditLog',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('action', models.CharField(max_length=100)),
+                ('resource_type', models.CharField(max_length=50)),
+                ('resource_id', models.IntegerField()),
+                ('old_value', models.JSONField(null=True)),
+                ('new_value', models.JSONField(null=True)),
+                ('ip_address', models.GenericIPAddressField()),
+                ('user_agent', models.TextField()),
+                ('timestamp', models.DateTimeField(auto_now_add=True)),
+                ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='ExternalTransaction',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('external_id', models.CharField(max_length=255, unique=True)),
+                ('amount', models.DecimalField(decimal_places=8, max_digits=20)),
+                ('status', models.CharField(choices=[('pending', 'pending'), ('reconciled', 'reconciled'), ('mismatch', 'mismatch')], default='pending', max_length=20)),
+                ('currency', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='investments.currency')),
+                ('transaction', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='investments.transactionlog')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='P2POrder',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('order_type', models.CharField(choices=[('BUY', 'BUY'), ('SELL', 'SELL')], max_length=4)),
+                ('amount', models.DecimalField(decimal_places=8, max_digits=20)),
+                ('price', models.DecimalField(decimal_places=8, max_digits=20)),
+                ('is_filled', models.BooleanField(default=False)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('currency', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='investments.currency')),
+                ('matched_order', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='investments.p2porder')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='YieldStrategy',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('strategy_name', models.CharField(max_length=100)),
+                ('parameters', models.JSONField(default=dict)),
+                ('is_active', models.BooleanField(default=True)),
+                ('delegatee', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='delegated_strategies', to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='yield_strategies', to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]
