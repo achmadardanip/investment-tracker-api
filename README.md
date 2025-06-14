@@ -29,6 +29,21 @@ class UserWallet(models.Model):
     currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
     address = models.CharField(max_length=255, unique=True)
 ```
+**Test Example**
+```python
+def test_create_wallet(db, django_user_model):
+    user = django_user_model.objects.create_user("alice", password="pass")
+    currency = Currency.objects.create(
+        code="USDT",
+        network="ERC20",
+        contract_address="0x1",
+        decimal_places=6,
+    )
+    wallet = UserWallet.objects.create(
+        user=user, currency=currency, address="0xtest", balance=0, locked_balance=0
+    )
+    assert wallet.address == "0xtest"
+```
 
 ### Part 2 – Complex Financial Features
 - Yield calculations run through `YieldCalculationService` with tiered APY logic.
@@ -39,6 +54,13 @@ class YieldCalculationService:
         """Placeholder for compound interest calculations."""
         pass
 ```
+**Test Example**
+```python
+def test_yield_service():
+    service = YieldCalculationService()
+    service.calculate_daily_yields()
+    # assert yield calculations here
+```
 
 ### Part 3 – Real-Time Features & WebSockets
 - Users receive live updates using Django Channels consumers.
@@ -47,6 +69,17 @@ class YieldCalculationService:
 class InvestmentConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
+```
+**Test Example**
+```python
+from channels.testing import WebsocketCommunicator
+from config.asgi import application
+
+async def test_websocket_connect():
+    communicator = WebsocketCommunicator(application, "/ws/investments/")
+    connected, _ = await communicator.connect()
+    assert connected
+    await communicator.disconnect()
 ```
 
 ### Part 4 – Performance & Scale
@@ -59,6 +92,12 @@ class CachedInvestmentService:
         """Multi-tier caching implementation placeholder."""
         pass
 ```
+**Test Example**
+```python
+def test_cached_portfolio(db):
+    service = CachedInvestmentService()
+    service.get_portfolio_value(user_id=1)
+```
 
 ### Part 5 – Security & Compliance
 - Requests are signed using `TransactionSigner` and all activity is logged via
@@ -69,6 +108,14 @@ class TransactionSigner:
     def sign_transaction(self, transaction_data):
         """Placeholder for HMAC-SHA256 signing."""
 ```
+**Test Example**
+```python
+def test_signer():
+    signer = TransactionSigner()
+    data = {"amount": "100"}
+    signature = signer.sign_transaction(data)
+    assert signer.verify_signature(data, signature)
+```
 
 ### Part 6 – Advanced APIs
 - A GraphQL schema complements REST endpoints, supporting portfolio queries and
@@ -77,6 +124,13 @@ class TransactionSigner:
 ```python
 class Query(graphene.ObjectType):
     portfolio = graphene.List(InvestmentType, user_id=graphene.ID(required=True))
+```
+**Test Example**
+```python
+def test_graphql_portfolio(client):
+    query = "{ portfolio(userId: 1) { id } }"
+    response = client.post("/graphql/", {"query": query})
+    assert "errors" not in response.json()
 ```
 
 ### Part 7 – Additional Integrations
@@ -88,6 +142,12 @@ class SmartContractService:
     def send_settlement(self, wallet_address, amount, currency):
         tx_hash = f"tx_{wallet_address}_{amount}"
         return tx_hash
+```
+**Test Example**
+```python
+def test_matching_engine():
+    engine = MatchingEngine()
+    engine.match_orders()
 ```
 
 ## **Project Structure**
