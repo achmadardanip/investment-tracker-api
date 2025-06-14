@@ -1,11 +1,11 @@
 from django.db.models import Sum, Avg, F
 from django.utils import timezone
-from .models import UserInvestment
+from .models import Investment
 
 class InvestmentService:
     def calculate_portfolio_performance(self, user):
         """Calculate overall portfolio ROI and other key metrics."""
-        investments = UserInvestment.objects.filter(user=user, is_active=True)
+        investments = Investment.objects.filter(user=user, is_active=True)
 
         if not investments.exists():
             return {
@@ -38,7 +38,7 @@ class InvestmentService:
 
     def get_investment_insights(self, user):
         """Return insights like average holding period, preferred investment size."""
-        investments = UserInvestment.objects.filter(user=user)
+        investments = Investment.objects.filter(user=user)
         
         if not investments.exists():
             return {
@@ -56,9 +56,74 @@ class InvestmentService:
 
         # Preferred (Average) Investment Size
         preferred_investment_size = investments.aggregate(avg_size=Avg('amount_invested'))['avg_size'] or 0
-        
+
         return {
             'average_holding_period_days': round(average_holding_period_days, 2),
             'preferred_investment_size': round(preferred_investment_size, 2)
         }
+
+
+class YieldCalculationService:
+    def calculate_daily_yields(self):
+        """Placeholder for compound interest calculations."""
+        pass
+
+    def process_yield_distribution(self):
+        """Placeholder for batch processing of yield payments."""
+        pass
+
+
+class CachedInvestmentService:
+    def get_portfolio_value(self, user_id):
+        """Multi-tier caching implementation placeholder."""
+        pass
+
+    def invalidate_user_cache(self, user_id):
+        """Cache invalidation placeholder."""
+        pass
+
+
+class TransactionSigner:
+    def sign_transaction(self, transaction_data):
+        """Placeholder for HMAC-SHA256 signing."""
+        pass
+
+    def verify_signature(self, transaction_data, signature):
+        """Placeholder for signature verification."""
+        pass
+
+
+class SmartContractService:
+    def send_settlement(self, wallet, amount, currency):
+        """Placeholder call to blockchain client."""
+        return f"tx_{wallet}_{amount}"
+
+    def get_status(self, tx_hash):
+        return "success"
+
+
+class FraudDetectionService:
+    def __init__(self, detector):
+        self.detector = detector
+
+    def is_fraudulent(self, features):
+        return self.detector.predict(features)
+
+
+class ReconciliationService:
+    def reconcile_pending(self):
+        from .reconciliation import ReconciliationService as Impl
+        Impl().reconcile()
+
+
+class MatchingEngineService:
+    def run(self):
+        from .matching import MatchingEngine
+        MatchingEngine().match()
+
+
+class DelegatedYieldServiceWrapper:
+    def process(self):
+        from .delegated_yield import DelegatedYieldService
+        DelegatedYieldService().process()
 
