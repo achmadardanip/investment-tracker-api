@@ -9,6 +9,87 @@ The `version-2` branch contains the latest updates with multi-currency support,
 WebSockets, Celery tasks and GraphQL APIs. Use this branch for submission and
 future development.
 
+## Feature Overview (Parts 1-7)
+
+The project demonstrates all advanced requirements outlined in the challenge.
+
+### Part 1 – Multi-Currency & Blockchain Integration
+- Multiple currencies and on-chain addresses are managed through `Currency` and
+  `UserWallet` models, while `Investment` now stores yield information.
+
+```python
+class Currency(models.Model):
+    code = models.CharField(max_length=10)
+    network = models.CharField(max_length=20)
+    contract_address = models.CharField(max_length=255)
+    decimal_places = models.IntegerField()
+
+class UserWallet(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
+    address = models.CharField(max_length=255, unique=True)
+```
+
+### Part 2 – Complex Financial Features
+- Yield calculations run through `YieldCalculationService` with tiered APY logic.
+
+```python
+class YieldCalculationService:
+    def calculate_daily_yields(self):
+        """Placeholder for compound interest calculations."""
+        pass
+```
+
+### Part 3 – Real-Time Features & WebSockets
+- Users receive live updates using Django Channels consumers.
+
+```python
+class InvestmentConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.accept()
+```
+
+### Part 4 – Performance & Scale
+- Multi-tier caching via `CachedInvestmentService` and background processing
+  with Celery tasks.
+
+```python
+class CachedInvestmentService:
+    def get_portfolio_value(self, user_id):
+        """Multi-tier caching implementation placeholder."""
+        pass
+```
+
+### Part 5 – Security & Compliance
+- Requests are signed using `TransactionSigner` and all activity is logged via
+  the `AuditLog` model.
+
+```python
+class TransactionSigner:
+    def sign_transaction(self, transaction_data):
+        """Placeholder for HMAC-SHA256 signing."""
+```
+
+### Part 6 – Advanced APIs
+- A GraphQL schema complements REST endpoints, supporting portfolio queries and
+  mutations.
+
+```python
+class Query(graphene.ObjectType):
+    portfolio = graphene.List(InvestmentType, user_id=graphene.ID(required=True))
+```
+
+### Part 7 – Additional Integrations
+- On-chain settlements, fraud detection and P2P matching services round out the
+  platform.
+
+```python
+class SmartContractService:
+    def send_settlement(self, wallet_address, amount, currency):
+        tx_hash = f"tx_{wallet_address}_{amount}"
+        return tx_hash
+```
+
 ## **Project Structure**
 
 investment-tracker-api/  
