@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import F
 
-from .models import UserInvestment, TransactionLog
+from .models import Investment, TransactionLog
 from .serializers import InvestmentSerializer, InvestmentSummarySerializer
 from .services import InvestmentService
 
@@ -18,7 +18,7 @@ class InvestmentListCreateAPIView(generics.ListCreateAPIView):
         for the currently authenticated user.
         """
         user = self.request.user
-        return UserInvestment.objects.filter(user=user).order_by('-purchase_date')
+        return Investment.objects.filter(user=user).order_by('-purchase_date')
 
     def perform_create(self, serializer):
         """
@@ -45,7 +45,7 @@ class InvestmentSummaryAPIView(APIView):
         # Get investment insights
         insights_data = service.get_investment_insights(user)
         
-        investments = UserInvestment.objects.filter(user=user, is_active=True)
+        investments = Investment.objects.filter(user=user, is_active=True)
         
         # Find best and worst performing investments
         best_investment = None
