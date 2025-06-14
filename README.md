@@ -150,6 +150,9 @@ def test_matching_engine():
     engine.match_orders()
 ```
 
+The fraud detection tests train a simple model using the popular Kaggle credit
+card fraud dataset. A small sample is included in `data/creditcard_sample.csv`.
+
 ## **Project Structure**
 
 investment-tracker-api/  
@@ -176,6 +179,8 @@ investment-tracker-api/
 │   │   └── views.py  
 └── fixtures/  
     └── sample\_data.json
+└── apps/investments/tests/
+    └── unit tests covering each part
 
 ## **Setup Instructions**
 
