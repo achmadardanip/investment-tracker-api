@@ -233,3 +233,4 @@ python manage.py changepassword admin
 ```
 
 After you set the new password, use it in the curl command to get the token.
+A Postman collection `InvestmentTracker.postman_collection.json` is included with sample requests for all endpoints.
