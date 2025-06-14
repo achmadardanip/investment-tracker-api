@@ -1,0 +1,57 @@
+{
+  "info": {
+    "name": "Investment Tracker API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Obtain Token",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "url": {"raw": "{{base_url}}/api/token/"},
+        "body": {"mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}"}
+      }
+    },
+    {
+      "name": "List Investments",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+        "url": {"raw": "{{base_url}}/api/v1/investments/"}
+      }
+    },
+    {
+      "name": "Create Investment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{access_token}}"},
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "url": {"raw": "{{base_url}}/api/v1/investments/"},
+        "body": {"mode": "raw", "raw": "{\n  \"asset_name\": \"Bitcoin\",\n  \"amount_invested\": 1000,\n  \"current_value\": 1000,\n  \"purchase_date\": \"2025-01-01T00:00:00Z\"\n}"}
+      }
+    },
+    {
+      "name": "Investment Summary",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+        "url": {"raw": "{{base_url}}/api/v1/investments/summary/"}
+      }
+    },
+    {
+      "name": "GraphQL",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{access_token}}"},
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "url": {"raw": "{{base_url}}/graphql/"},
+        "body": {"mode": "raw", "raw": "{\n  \"query\": \"{ portfolio(userId: 1) { id assetName currentValue } }\"\n}"}
+      }
+    }
+  ]
+}

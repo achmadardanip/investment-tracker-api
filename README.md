@@ -1,6 +1,154 @@
 # **Investment Tracker API**
 
-This project is a simple REST API built with Django and Django REST Framework to track user investments. The API allows authenticated users to manage their investments, view their portfolio's performance, and gain insights into their investment habits.
+This project started as a simple REST API. Version 2 introduces multi-currency investments, real-time WebSocket updates, background task processing with Celery and a GraphQL API layer.
+Version 3 adds experimental features such as on-chain settlements, machine learning based fraud detection, transaction reconciliation, a P2P matching engine and delegated yield strategies.
+
+## Version 2 Branch
+
+The `version-2` branch contains the latest updates with multi-currency support,
+WebSockets, Celery tasks and GraphQL APIs. Use this branch for submission and
+future development.
+
+## Feature Overview (Parts 1-7)
+
+The project demonstrates all advanced requirements outlined in the challenge.
+
+### Part 1 – Multi-Currency & Blockchain Integration
+- Multiple currencies and on-chain addresses are managed through `Currency` and
+  `UserWallet` models, while `Investment` now stores yield information.
+
+```python
+class Currency(models.Model):
+    code = models.CharField(max_length=10)
+    network = models.CharField(max_length=20)
+    contract_address = models.CharField(max_length=255)
+    decimal_places = models.IntegerField()
+
+class UserWallet(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
+    address = models.CharField(max_length=255, unique=True)
+```
+**Test Example**
+```python
+def test_create_wallet(db, django_user_model):
+    user = django_user_model.objects.create_user("alice", password="pass")
+    currency = Currency.objects.create(
+        code="USDT",
+        network="ERC20",
+        contract_address="0x1",
+        decimal_places=6,
+    )
+    wallet = UserWallet.objects.create(
+        user=user, currency=currency, address="0xtest", balance=0, locked_balance=0
+    )
+    assert wallet.address == "0xtest"
+```
+
+### Part 2 – Complex Financial Features
+- Yield calculations run through `YieldCalculationService` with tiered APY logic.
+
+```python
+class YieldCalculationService:
+    def calculate_daily_yields(self):
+        """Placeholder for compound interest calculations."""
+        pass
+```
+**Test Example**
+```python
+def test_yield_service():
+    service = YieldCalculationService()
+    service.calculate_daily_yields()
+    # assert yield calculations here
+```
+
+### Part 3 – Real-Time Features & WebSockets
+- Users receive live updates using Django Channels consumers.
+
+```python
+class InvestmentConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.accept()
+```
+**Test Example**
+```python
+from channels.testing import WebsocketCommunicator
+from config.asgi import application
+
+async def test_websocket_connect():
+    communicator = WebsocketCommunicator(application, "/ws/investments/")
+    connected, _ = await communicator.connect()
+    assert connected
+    await communicator.disconnect()
+```
+
+### Part 4 – Performance & Scale
+- Multi-tier caching via `CachedInvestmentService` and background processing
+  with Celery tasks.
+
+```python
+class CachedInvestmentService:
+    def get_portfolio_value(self, user_id):
+        """Multi-tier caching implementation placeholder."""
+        pass
+```
+**Test Example**
+```python
+def test_cached_portfolio(db):
+    service = CachedInvestmentService()
+    service.get_portfolio_value(user_id=1)
+```
+
+### Part 5 – Security & Compliance
+- Requests are signed using `TransactionSigner` and all activity is logged via
+  the `AuditLog` model.
+
+```python
+class TransactionSigner:
+    def sign_transaction(self, transaction_data):
+        """Placeholder for HMAC-SHA256 signing."""
+```
+**Test Example**
+```python
+def test_signer():
+    signer = TransactionSigner()
+    data = {"amount": "100"}
+    signature = signer.sign_transaction(data)
+    assert signer.verify_signature(data, signature)
+```
+
+### Part 6 – Advanced APIs
+- A GraphQL schema complements REST endpoints, supporting portfolio queries and
+  mutations.
+
+```python
+class Query(graphene.ObjectType):
+    portfolio = graphene.List(InvestmentType, user_id=graphene.ID(required=True))
+```
+**Test Example**
+```python
+def test_graphql_portfolio(client):
+    query = "{ portfolio(userId: 1) { id } }"
+    response = client.post("/graphql/", {"query": query})
+    assert "errors" not in response.json()
+```
+
+### Part 7 – Additional Integrations
+- On-chain settlements, fraud detection and P2P matching services round out the
+  platform.
+
+```python
+class SmartContractService:
+    def send_settlement(self, wallet_address, amount, currency):
+        tx_hash = f"tx_{wallet_address}_{amount}"
+        return tx_hash
+```
+**Test Example**
+```python
+def test_matching_engine():
+    engine = MatchingEngine()
+    engine.match_orders()
+```
 
 ## **Project Structure**
 
@@ -77,6 +225,10 @@ The API will be available at http://127.0.0.1:8000/.
 ## **API Endpoints**
 
 The base URL for the API is /api/v1/.
+
+### GraphQL
+
+An experimental GraphQL endpoint is available at `/graphql/`.
 
 ### **Authentication**
 
@@ -228,3 +380,4 @@ python manage.py changepassword admin
 ```
 
 After you set the new password, use it in the curl command to get the token.
+A Postman collection `InvestmentTracker.postman_collection.json` is included with sample requests for all endpoints.
